@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+//парамерты создания jar файла
+jar {
+    //имя и версия
+    baseName = 'my-app'
+    version =  '0.1.0'
+    //манифест, в котором указан основной класс
+    manifest {
+        attributes 'Main-Class': 'HelloWorld'
+    }
+}
+
+//task для создания jar файла
+task createJar(type: Jar) {
+    from configurations.runtimeClasspath.getFiles()
+    from sourceSets.main.output
+    //имя файла
+    archiveFileName.set('my-app.jar')
+    //манифест, в котором указан основной класс
+    manifest {
+        attributes 'Main-Class': 'HelloWorld'
+    }
+    //папка для файла
+    destinationDirectory.set(file('docker'))
+}
+
+//task для выполнения docker build
+task buildDocker(type: Exec) {
+    //выполнение команды в командной строке
+    commandLine 'docker', 'build', '-t', 'my-app', '.'
+    //в какой директории выполнять
+    workingDir './docker'
+}
